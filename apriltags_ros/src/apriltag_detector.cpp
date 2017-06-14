@@ -133,10 +133,27 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     tag_pose.pose.orientation.w = rot_quaternion.w();
     tag_pose.header = cv_ptr->header;
 
+    //Fill in the pixel locations of the tag center
+    geometry_msgs::Point tag_center;
+    tag_center.x = detection.cxy.first;
+    tag_center.y = detection.cxy.second;
+    tag_center.z = 0;
+
     AprilTagDetection tag_detection;
     tag_detection.pose = tag_pose;
     tag_detection.id = detection.id;
     tag_detection.size = tag_size;
+    tag_detection.tagCenterPx = tag_center;
+    
+    //Pixel locations of the tag corners
+    for(int ii = 0; ii < 4; ii++){
+      geometry_msgs::Point tag_corner;
+      tag_corner.x = detection.p[ii].first;
+      tag_corner.y = detection.p[ii].second;
+      tag_corner.z = 0;
+      tag_detection.tagCornersPx.push_back(tag_corner);
+    }
+
     tag_detection_array.detections.push_back(tag_detection);
     tag_pose_array.poses.push_back(tag_pose.pose);
 
